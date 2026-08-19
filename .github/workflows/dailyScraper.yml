@@ -1,0 +1,44 @@
+name: Daily Amazon Scraper & AI Newsletter
+
+on:
+  schedule:
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  scrape-and-mail:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install Dependencies
+      run: |
+        pip install -r requirements.txt
+        playwright install chromium
+
+    - name: Run the Engine
+      env:
+        apiKey: ${{ secrets.APIKEY }}
+        fromAdress: ${{ secrets.FROMADRESS }}
+        toAdress: ${{ secrets.TOADRESS }}
+        gmailPassword: ${{ secrets.GMAILPASSWORD }}
+      run: |
+        python main.py
+
+    - name: Commit and Push Updated Database
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add amazonData.db
+        git commit -m "Auto-update Amazon Database (Daily Run)" || echo "No changes to commit"
+        git push
