@@ -61,15 +61,13 @@ def startTheAiEngine():
     Below is a list of the top 5 products with the highest discount rates that I scraped from Amazon.
     Your task is to analyze the hardware of these devices and comment on whether they are worth their price.
 
-    PLEASE OUTPUT AS A STYLISH HTML NEWSLETTER FORMAT.
-    - Create a modern, dark mode design using inline CSS.
-    - CRITICAL: Ensure ALL TEXT (titles, descriptions, specs) is WHITE (color: #ffffff;) so it is readable on the dark background!
-    - Keep the analysis for each device CONCISE (maximum 2 short sentences per device) to prevent the HTML from being cut off.
-    - Include price information and discount rates.
-    - Create a bright, clickable "Purchase Now" button using the Purchase links (a href).
-    - Use the Device Images (img src).
-    - Use a minimalist single-column card design.
-    - Do not output any markdown ticks like ```html, just output the raw HTML code.
+    PLEASE OUTPUT AS A STYLISH HTML NEWSLETTER FORMAT. Follow these STRICT rules:
+    1. Background must be dark (#1a1a1a).
+    2. ALL TEXT (h1, h2, h3, p, span) MUST BE EXPLICITLY WHITE (#ffffff). Add 'color: #ffffff;' to every text tag.
+    3. For the purchase link, YOU MUST USE A PROPER HTML BUTTON. Do NOT output raw text links. 
+       Example: <a href="THE_LINK_HERE" style="display:inline-block; padding:10px 20px; background:#007bff; color:#ffffff; text-decoration:none; border-radius:5px;">Purchase Now</a>
+    4. Keep the analysis for each device CONCISE (maximum 2 short sentences per device).
+    5. Do not output any markdown ticks like ```html, just output the raw HTML code.
 
     Here is the List of the Top Products:
     {dataText}
