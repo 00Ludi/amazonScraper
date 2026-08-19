@@ -47,31 +47,31 @@ def startTheAiEngine():
         dataText += f"  Current Price: ${current} | Highest Seen Price: ${highest}\n"
         
         if discount > 0:
-            dataText += f"  🔥 REAL DISCOUNT: {discount}% (According to our memory, price actually dropped!)\n"
+            dataText += f"  [REAL DISCOUNT]: {discount}% (According to our memory, price actually dropped!)\n"
         else:
-            dataText += f"  ❌ No Discount (Price remains the same or increased)\n"
+            dataText += f"  [NO DISCOUNT] (Price remains the same or increased)\n"
             
         dataText += f"  Link: {url}\n"
         dataText += f"  Image: {img}\n\n"
 
-    print("[INFO] Sending data to AI. Waiting for research and analysis...")
+    print("[INFO] Sending data to Hugging Face AI (Qwen). Waiting for research and analysis...")
 
     aiJobDescription = f"""
-    You are a professional Hardware Analyst and Price/Performance expert.
+    You are a professional Hardware Analyst.
     Below is a list of the top 5 products with the highest discount rates that I scraped from Amazon.
-    Your task is to analyze the hardware and quality of these devices and comment on whether they are worth their price.
+    Your task is to analyze the hardware of these devices and comment on whether they are worth their price.
 
-    PLEASE OUTPUT AS A STYLISH HTML NEWSLETTER (Email) FORMAT.
-    Create a very professional, modern, dark mode, and visually appealing design using inline CSS within the HTML.
-    Select only the "TOP 5" devices that truly have a good discount rate or high-quality hardware. Review them in detail and provide comments based on your research.
-    Include price information and discount rates.
-    Create clickable, simple, and stylish buttons using the Device Images (img src) and Purchase links (a href).
-    ABSOLUTELY avoid complex nested blocks and tables so it can be read easily on mobile devices.
-    Use a minimalist card design arranged vertically, wide, spacious, and single-column.
-    Do not use large, filled, differently colored boxes; ensure box borders match the main theme and do not strain the eyes.
-    Do not output any markdown ticks like ```html, just output the raw HTML code.
+    PLEASE OUTPUT AS A STYLISH HTML NEWSLETTER FORMAT.
+    - Create a modern, dark mode design using inline CSS.
+    - CRITICAL: Ensure ALL TEXT (titles, descriptions, specs) is WHITE (color: #ffffff;) so it is readable on the dark background!
+    - Keep the analysis for each device CONCISE (maximum 2 short sentences per device) to prevent the HTML from being cut off.
+    - Include price information and discount rates.
+    - Create a bright, clickable "Purchase Now" button using the Purchase links (a href).
+    - Use the Device Images (img src).
+    - Use a minimalist single-column card design.
+    - Do not output any markdown ticks like ```html, just output the raw HTML code.
 
-    Here is the List of the Top 5 Products:
+    Here is the List of the Top Products:
     {dataText}
     """
 
@@ -82,7 +82,7 @@ def startTheAiEngine():
     response = client.chat_completion(
         model="Qwen/Qwen2.5-72B-Instruct",
         messages=messages,
-        max_tokens=2500
+        max_tokens=4000
     )
     
     answer_text = response.choices[0].message.content
@@ -96,10 +96,10 @@ def startTheAiEngine():
     message = MIMEMultipart()
     message["From"] = sender
     message["To"] = receiver
-    message["Subject"] = "🔥 Amazon Discount Report"
+    message["Subject"] = "Amazon Discount Report"
 
     clearHtml = answer_text.replace("```html", "").replace("```", "").strip()
-    message.attach(MIMEText(clearHtml, "html"))
+    message.attach(MIMEText(clearHtml, "html", "utf-8"))
 
     try:
         print("[INFO] Connecting to Google SMTP Servers...")
