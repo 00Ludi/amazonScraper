@@ -62,12 +62,10 @@ def startTheAiEngine():
     Your task is to analyze the hardware of these devices and comment on whether they are worth their price.
 
     PLEASE OUTPUT AS A STYLISH HTML NEWSLETTER FORMAT. Follow these STRICT rules:
-    1. Background must be dark (#1a1a1a).
-    2. ALL TEXT (h1, h2, h3, p, span) MUST BE EXPLICITLY WHITE (#ffffff). Add 'color: #ffffff;' to every text tag.
-    3. For the purchase link, YOU MUST USE A PROPER HTML BUTTON. Do NOT output raw text links. 
-       Example: <a href="THE_LINK_HERE" style="display:inline-block; padding:10px 20px; background:#007bff; color:#ffffff; text-decoration:none; border-radius:5px;">Purchase Now</a>
-    4. Keep the analysis for each device CONCISE (maximum 2 short sentences per device).
-    5. Do not output any markdown ticks like ```html, just output the raw HTML code.
+    1. DO NOT specify ANY background colors or text colors in your CSS! Let the email client handle Light/Dark mode automatically. Just use structural HTML.
+    2. For the purchase link, YOU MUST USE A PROPER HTML BUTTON. Example: <a href="THE_LINK_HERE" style="display:inline-block; padding:10px 20px; background:#007bff; color:#ffffff; text-decoration:none; border-radius:5px;">Purchase Now</a>
+    3. Keep the analysis for each device CONCISE (maximum 2 short sentences per device).
+    4. Do not output any markdown ticks like ```html, just output the raw HTML code.
 
     Here is the List of the Top Products:
     {dataText}
