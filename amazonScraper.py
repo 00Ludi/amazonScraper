@@ -46,10 +46,19 @@ def startTheScraper(searchingWord):
 
         # 3. SEARCHING THE KEYWORD
         print(f"[INFO] Typing keyword '{searchingWord}' into search box...")
-        page.fill("#twotabsearchtextbox", searchingWord)
-        
-        print("[INFO] Pressing Enter...")
-        page.keyboard.press("Enter")
+        try:
+            # We wait up to 10 seconds. If Amazon blocked us, this will fail quickly.
+            page.fill("#twotabsearchtextbox", searchingWord, timeout=10000)
+            print("[INFO] Pressing Enter...")
+            page.keyboard.press("Enter")
+        except Exception as e:
+            print("\n[CRITICAL ERROR] Amazon blocked the bot (Captcha or UI Change)!")
+            print("[INFO] Taking a screenshot to see what Amazon is showing...")
+            page.screenshot(path="amazon_blocked_debug.png")
+            print("[INFO] Saved screenshot as 'amazon_blocked_debug.png'")
+            print("[INFO] Exiting gracefully so the action doesn't crash terribly...")
+            browser.close()
+            return
 
         # 4. PAGINATION & SCRAPING LOOP
         print("[INFO] Waiting for results to load...")
