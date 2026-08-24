@@ -25,7 +25,8 @@ def createTables():
 def saveProduct(productName, currentPrice, productUrl, imageUrl):
     today = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 
-    cursor.execute("SELECT currentPrice, lowestPrice, highestPrice FROM products WHERE productUrl=?", (productUrl,))
+    # Urunu URL ile degil, ISIM (productName) ile ara!
+    cursor.execute("SELECT currentPrice, lowestPrice, highestPrice FROM products WHERE productName=?", (productName,))
     result = cursor.fetchone()
     
     if result:
@@ -33,11 +34,12 @@ def saveProduct(productName, currentPrice, productUrl, imageUrl):
         newLowest = min(currentPrice, dbLowest)
         newHighest = max(currentPrice, dbHighest)
 
+        # Sadece URL'si bile degisse, urunu isimle bulup fiyatlarini ve en yeni URL'sini guncelliyoruz
         cursor.execute('''
             UPDATE products 
-            SET productName=?, currentPrice=?, lowestPrice=?, highestPrice=?, imageUrl=?, lastUpdated=?
-            WHERE productUrl=?
-        ''', (productName, currentPrice, newLowest, newHighest, imageUrl, today, productUrl))
+            SET currentPrice=?, lowestPrice=?, highestPrice=?, imageUrl=?, lastUpdated=?, productUrl=?
+            WHERE productName=?
+        ''', (currentPrice, newLowest, newHighest, imageUrl, today, productUrl, productName))
     else:
         cursor.execute('''
             INSERT INTO products (productUrl, productName, currentPrice, lowestPrice, highestPrice, imageUrl, lastUpdated)
