@@ -37,6 +37,11 @@ def startTheAiEngine():
     # 2. Get top 5 champions
     bestDiscountOfFive = allProducts[:5]
     
+    # GUARD CLAUSE: If even the top product has 0 discount, there are no discounts today!
+    if len(bestDiscountOfFive) == 0 or calculateDiscount(bestDiscountOfFive[0]) == 0:
+        print("[INFO] No real discounts found today. Skipping AI processing and Email phase to avoid hallucinations.")
+        return
+    
     dataText = ""
     # 3. Format these 5 products into an AI Prompt
     for product in bestDiscountOfFive:
@@ -54,7 +59,7 @@ def startTheAiEngine():
         dataText += f"  Link: {url}\n"
         dataText += f"  Image: {img}\n\n"
 
-    print("[INFO] Sending data to Hugging Face AI (Qwen). Waiting for research and analysis...")
+    print("[INFO] Sending data to Hugging Face AI. Waiting for research and analysis...")
 
     aiJobDescription = f"""
     You are a professional Hardware Analyst.
@@ -77,10 +82,11 @@ def startTheAiEngine():
         {"role": "user", "content": aiJobDescription}
     ]
 
+    # Qwen-72B is too heavy for free tier. Using faster, more stable models.
     models_to_try = [
-        "Qwen/Qwen2.5-72B-Instruct",
         "meta-llama/Meta-Llama-3-8B-Instruct",
-        "mistralai/Mistral-7B-Instruct-v0.2"
+        "mistralai/Mistral-7B-Instruct-v0.2",
+        "google/gemma-1.1-7b-it"
     ]
     
     answer_text = None
