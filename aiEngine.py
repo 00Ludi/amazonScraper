@@ -92,19 +92,42 @@ def startTheAiEngine():
 
     try:
         from google import genai
+        import time
         # We reuse the "apiKey" env var so you don't have to change GitHub Actions YAML
         client = genai.Client(api_key=apiKey)
         
-        print("[INFO] Trying Google Gemini Model: gemini-2.0-flash...")
-        response = client.models.generate_content(
-            model='gemini-3.5-flash',
-            contents=aiJobDescription,
-        )
-        answer_text = response.text
-        print("[SUCCESS] Gemini responded successfully!")
+        models_to_try = ['gemini-3.5-flash']
+        answer_text = None
         
+        for model in models_to_try:
+            print(f"[INFO] Trying Google Gemini Model: {model}...")
+            
+            # 503 hatalarina karsi 3 kere tekrar deneme (Retry) mekanizmasi
+            for attempt in range(3):
+                try:
+                    response = client.models.generate_content(
+                        model=model,
+                        contents=aiJobDescription,
+                    )
+                    answer_text = response.text
+                    print(f"[SUCCESS] Gemini ({model}) responded successfully on attempt {attempt+1}!")
+                    break # Basarili olursa retry dongusunden cik
+                except Exception as e:
+                    if "503" in str(e) or "UNAVAILABLE" in str(e):
+                        print(f"[WARNING] {model} is busy (503). Retrying in 5 seconds... (Attempt {attempt+1}/3)")
+                        time.sleep(5)
+                    else:
+                        print(f"[ERROR] Gemini {model} failed with non-503 error: {e}")
+                        break # Baska bir hataysa (orn: yanlis sifre) tekrar deneme, diger modele gec
+            
+            if answer_text:
+                break # Eger cevap geldiyse model dongusunden de tamamen cik
+                
+        if not answer_text:
+            raise Exception("All Gemini models and retries failed.")
+            
     except Exception as e:
-        print(f"[ERROR] Google Gemini AI failed: {e}")
+        print(f"[ERROR] AI Engine completely failed: {e}")
         print("[INFO] Skipping Email phase to prevent pipeline crash.")
         return 
 
