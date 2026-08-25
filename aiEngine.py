@@ -31,28 +31,28 @@ def startTheAiEngine():
             return 100 - ((current * 100) / highest)
         return 0
 
-    # 1. Sort the list descending by real discount
-    allProducts.sort(key=calculateDiscount, reverse=True)
+    # 1. Sadece GERCEKTEN indirimde olan urunleri filtrele (indirim > 0)
+    realDiscountedProducts = [p for p in allProducts if calculateDiscount(p) > 0]
     
-    # 2. Get top 5 champions
-    bestDiscountOfFive = allProducts[:5]
+    # 2. Indirim oranina gore buyukten kucuge sirala
+    realDiscountedProducts.sort(key=calculateDiscount, reverse=True)
     
-    # Check what the highest discount is
-    highest_discount_val = 0
-    if len(bestDiscountOfFive) > 0:
-        highest_discount_val = int(calculateDiscount(bestDiscountOfFive[0]))
+    # 3. En iyi 5 tanesini al (Eger 2 tane varsa 2'sini alir, 8 tane varsa ilk 5'ini alir)
+    bestDiscountOfFive = realDiscountedProducts[:5]
     
-    # GUARD CLAUSE: If even the top product has 0 discount, there are no discounts today!
-    if highest_discount_val == 0:
+    # GUARD CLAUSE: Eğer listede hiç ürün kalmadıysa indirim yok demektir.
+    if len(bestDiscountOfFive) == 0:
         print("\n=======================================================")
         print("[CHECK] EN YUKSEK INDIRIM ORANI: %0")
         print("[INFO] Bugun hicbir urunde indirim yok. AI asamasi iptal edildi.")
         print("=======================================================\n")
         return
     else:
+        highest_discount_val = int(calculateDiscount(bestDiscountOfFive[0]))
         print("\n=======================================================")
-        print(f"[CHECK] HARIKA! EN YUKSEK INDIRIM ORANI: %{highest_discount_val}")
-        print("[INFO] Indirim bulundu! Yapay Zeka bulteni hazirlaniyor...")
+        print(f"[CHECK] HARIKA! {len(bestDiscountOfFive)} ADET INDIRIMLI URUN BULUNDU!")
+        print(f"[CHECK] EN YUKSEK INDIRIM ORANI: %{highest_discount_val}")
+        print("[INFO] Yapay Zeka bulteni hazirlaniyor...")
         print("=======================================================\n")
     
     dataText = ""
