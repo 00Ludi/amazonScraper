@@ -1,7 +1,6 @@
 import os
 import smtplib
 from dotenv import load_dotenv
-from huggingface_hub import InferenceClient
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import sqlite3
@@ -11,7 +10,7 @@ def startTheAiEngine():
     envPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
     load_dotenv(envPath)
     apiKey = os.getenv("apiKey") 
-    client = InferenceClient(api_key=apiKey)
+
     
     print("[INFO] Reading Amazon data from the Database (amazonData.db)...")
     
@@ -72,11 +71,11 @@ def startTheAiEngine():
         dataText += f"  Link: {url}\n"
         dataText += f"  Image: {img}\n\n"
 
-    print("[INFO] Sending data to Hugging Face AI. Waiting for research and analysis...")
+    print("[INFO] Sending data to Google Gemini AI. Waiting for research and analysis...")
 
     aiJobDescription = f"""
     You are a professional Hardware Analyst.
-    Below is a list of the top 5 products with the highest discount rates that I scraped from Amazon.
+    Below is a list of the top products with the highest discount rates that I scraped from Amazon.
     Your task is to analyze the hardware of these devices and comment on whether they are worth their price.
 
     PLEASE OUTPUT AS A STYLISH HTML NEWSLETTER FORMAT. Follow these STRICT rules:
@@ -91,37 +90,23 @@ def startTheAiEngine():
     {dataText}
     """
 
-    messages = [
-        {"role": "user", "content": aiJobDescription}
-    ]
-
-    # Hugging Face Free Tier garantili ve hizli modeller
-    models_to_try = [
-        "Qwen/Qwen2.5-7B-Instruct",
-        "HuggingFaceH4/zephyr-7b-beta",
-        "microsoft/Phi-3-mini-4k-instruct"
-    ]
-    
-    answer_text = None
-    
-    for model_name in models_to_try:
-        try:
-            print(f"[INFO] Trying Hugging Face Model: {model_name}...")
-            response = client.chat_completion(
-                model=model_name,
-                messages=messages,
-                max_tokens=4000
-            )
-            answer_text = response.choices[0].message.content
-            print(f"[SUCCESS] Model {model_name} responded successfully!")
-            break # Başarılı olduysa döngüden (diğer modelleri denemekten) çık
-        except Exception as e:
-            print(f"[WARNING] Model {model_name} failed: {e}. Switching to fallback...")
-
-    if not answer_text:
-        print("[ERROR] All Hugging Face models failed today.")
+    try:
+        from google import genai
+        # We reuse the "apiKey" env var so you don't have to change GitHub Actions YAML
+        client = genai.Client(api_key=apiKey)
+        
+        print("[INFO] Trying Google Gemini Model: gemini-2.0-flash...")
+        response = client.models.generate_content(
+            model='gemini-3.5-flash',
+            contents=aiJobDescription,
+        )
+        answer_text = response.text
+        print("[SUCCESS] Gemini responded successfully!")
+        
+    except Exception as e:
+        print(f"[ERROR] Google Gemini AI failed: {e}")
         print("[INFO] Skipping Email phase to prevent pipeline crash.")
-        return # Hiçbiri çalışmazsa güvenli çıkış yap
+        return 
 
     print("[INFO] Preparing the Email Newsletter...")
 
