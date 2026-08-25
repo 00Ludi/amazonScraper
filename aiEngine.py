@@ -37,10 +37,23 @@ def startTheAiEngine():
     # 2. Get top 5 champions
     bestDiscountOfFive = allProducts[:5]
     
+    # Check what the highest discount is
+    highest_discount_val = 0
+    if len(bestDiscountOfFive) > 0:
+        highest_discount_val = int(calculateDiscount(bestDiscountOfFive[0]))
+    
     # GUARD CLAUSE: If even the top product has 0 discount, there are no discounts today!
-    if len(bestDiscountOfFive) == 0 or calculateDiscount(bestDiscountOfFive[0]) == 0:
-        print("[INFO] No real discounts found today. Skipping AI processing and Email phase to avoid hallucinations.")
+    if highest_discount_val == 0:
+        print("\n=======================================================")
+        print("[CHECK] EN YUKSEK INDIRIM ORANI: %0")
+        print("[INFO] Bugun hicbir urunde indirim yok. AI asamasi iptal edildi.")
+        print("=======================================================\n")
         return
+    else:
+        print("\n=======================================================")
+        print(f"[CHECK] HARIKA! EN YUKSEK INDIRIM ORANI: %{highest_discount_val}")
+        print("[INFO] Indirim bulundu! Yapay Zeka bulteni hazirlaniyor...")
+        print("=======================================================\n")
     
     dataText = ""
     # 3. Format these 5 products into an AI Prompt
@@ -82,11 +95,11 @@ def startTheAiEngine():
         {"role": "user", "content": aiJobDescription}
     ]
 
-    # Qwen-72B is too heavy for free tier. Using faster, more stable models.
+    # Hugging Face Free Tier garantili ve hizli modeller
     models_to_try = [
-        "meta-llama/Meta-Llama-3-8B-Instruct",
-        "mistralai/Mistral-7B-Instruct-v0.2",
-        "google/gemma-1.1-7b-it"
+        "Qwen/Qwen2.5-7B-Instruct",
+        "HuggingFaceH4/zephyr-7b-beta",
+        "microsoft/Phi-3-mini-4k-instruct"
     ]
     
     answer_text = None
